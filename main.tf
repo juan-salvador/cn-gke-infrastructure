@@ -9,7 +9,6 @@ data "google_project" "project" {
 resource "google_container_cluster" "gke" {
   name = "cloud-native"
   location = "us-central1-c"
-  //node_locations = [ "us-central1-c" ]
   min_master_version = "1.16.15-gke.6000"
   node_version = "1.16.15-gke.6000"
 

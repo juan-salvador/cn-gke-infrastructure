@@ -7,7 +7,7 @@ data "google_project" "project" {
 }
 
 resource "google_container_cluster" "gke" {
-  name = "cloud-native"
+  name = var.cluster_name
   location = "us-central1-c"
   min_master_version = "1.16.15-gke.6000"
   node_version = "1.16.15-gke.6000"
@@ -33,10 +33,12 @@ resource "google_container_cluster" "gke" {
   }
 
   master_authorized_networks_config {
-
-    cidr_blocks {
-        display_name = "public"
-        cidr_block = "0.0.0.0/0"
+    dynamic "cidr_blocks" {
+      for_each = var.allowed_cidr
+      content {
+        cidr_block = cidr_blocks.value
+        display_name = cidr_blocks.key
+      }
     }
   }
 
@@ -60,15 +62,15 @@ resource "google_container_node_pool" "node" {
     location = "us-central1-c"
 
     autoscaling {
-      min_node_count = 1
-      max_node_count = 2
+      min_node_count = var.min_count_nodes
+      max_node_count = var.max_count_nodes
     }
 
     node_count = 1
 
     management {
-        auto_repair = true
-        auto_upgrade = true
+        auto_repair = var.auto_repair
+        auto_upgrade = var.auto_upgrade
     }
     name = "nodo-1"
 
